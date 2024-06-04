@@ -2,9 +2,6 @@ import streamlit as st
 import PyPDF2
 import openai
 
-# Configura l'API di GPT-4
-openai.api_key = 'your_openai_api_key'
-
 def extract_text_from_pdf(file):
     pdf_reader = PyPDF2.PdfFileReader(file)
     text = ""
@@ -13,7 +10,7 @@ def extract_text_from_pdf(file):
         text += page.extract_text()
     return text
 
-def generate_email(report_text, client_name, contact_name, timeframe, report_type):
+def generate_email(report_text, client_name, contact_name, timeframe, report_type, your_name):
     prompt = f"""
     Crea una mail per il cliente {client_name} (referente: {contact_name}) riguardante il report {report_type} per il periodo {timeframe}.
     Ecco il testo del report:
@@ -47,13 +44,17 @@ def generate_email(report_text, client_name, contact_name, timeframe, report_typ
 
     A presto,
 
-    Filippo
+    {your_name}
     """
 
     response = openai.Completion.create(
-        engine="text-davinci-003",
+        model="text-davinci-003",
         prompt=prompt,
-        max_tokens=1500
+        max_tokens=1500,
+        temperature=0.7,
+        top_p=1.0,
+        n=1,
+        stop=None
     )
 
     return response.choices[0].text.strip()
@@ -61,18 +62,23 @@ def generate_email(report_text, client_name, contact_name, timeframe, report_typ
 # UI di Streamlit
 st.title("Generatore di Mail da Report PDF")
 
-uploaded_file = st.file_uploader("Carica il PDF del report", type="pdf")
+api_key = st.text_input("Inserisci la tua API key di OpenAI", type="password")
+if api_key:
+    openai.api_key = api_key
 
-if uploaded_file is not None:
-    client_name = st.text_input("Nome del cliente")
-    contact_name = st.text_input("Nome del referente")
-    timeframe = st.text_input("Timeframe (es. 1 marzo 2024 - 31 maggio 2024)")
-    report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR", "year review"])
+    uploaded_file = st.file_uploader("Carica il PDF del report", type="pdf")
 
-    if st.button("Genera Mail"):
-        report_text = extract_text_from_pdf(uploaded_file)
-        email_content = generate_email(report_text, client_name, contact_name, timeframe, report_type)
-        st.text_area("Email generata", email_content, height=400)
+    if uploaded_file is not None:
+        client_name = st.text_input("Nome del cliente")
+        contact_name = st.text_input("Nome del referente")
+        timeframe = st.text_input("Timeframe (es. 1 marzo 2024 - 31 maggio 2024)")
+        report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR", "year review"])
+        your_name = st.text_input("Il tuo nome")
 
-        st.download_button("Scarica la mail", email_content)
+        if st.button("Genera Mail"):
+            report_text = extract_text_from_pdf(uploaded_file)
+            email_content = generate_email(report_text, client_name, contact_name, timeframe, report_type, your_name)
+            st.text_area("Email generata", email_content, height=400)
+
+            st.download_button("Scarica la mail", email_content)
 
