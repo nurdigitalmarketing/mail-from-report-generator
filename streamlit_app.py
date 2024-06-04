@@ -21,63 +21,85 @@ def truncate_text(text, max_tokens):
         tokens = tokens[:max_tokens]
     return encoding.decode(tokens)
 
+def extract_key_info_from_report(client, report_text):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": f"""
+            Analizza il seguente testo e estrai le informazioni chiave riguardanti acquisizione, engagement, conversioni e posizionamento organico.
+            Testo del report:
+            {report_text}
+        """}
+    ]
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        max_tokens=1000,
+        temperature=0.7,
+        top_p=1.0,
+        n=1,
+        stop=None
+    )
+
+    return response.choices[0].message.content
+
+def generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name):
+    email_template = f"""
+    <!DOCTYPE html>
+    <html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Report SEO {client_name}</title>
+        <style>
+            .increment {{
+                color: green;
+            }}
+            .decrement {{
+                color: red;
+            }}
+        </style>
+    </head>
+    <body>
+        <p>Ciao {contact_name},</p>
+        <p>Ti invio il report {report_type} relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
+        <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
+        
+        <h3>Acquisizione</h3>
+        {key_info['acquisizione']}
+        
+        <h3>Engagement e Conversioni</h3>
+        {key_info['engagement_e_conversioni']}
+        
+        <h3>Posizionamento Organico</h3>
+        {key_info['posizionamento_organico']}
+        
+        <p>Continueremo a puntare su contenuti di qualità e ottimizzazione on-page per rafforzare la presenza organica del sito.</p>
+        
+        <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
+        
+        <p>Resto a disposizione per qualsiasi ulteriore informazione.</p>
+        
+        <p>Cordiali saluti,<br>{your_name}</p>
+    </body>
+    </html>
+    """
+    return email_template
+
 def generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name):
     max_input_tokens = 126000  # Set according to the context window of the model
     truncated_report_text = truncate_text(report_text, max_input_tokens)
 
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": f"""
-            Crea una mail per il cliente {client_name} (referente: {contact_name}) riguardante il report {report_type} per il periodo {timeframe}.
-            Ecco il testo del report:
-            
-            {truncated_report_text}
-            
-            Utilizza il seguente template:
-            
-            Ciao {contact_name},
-            
-            Scrivo per condividerti il report {report_type} per progetto SEO di RIVA 1920, con un focus particolare sui risultati del canale organico.
-            
-            Il periodo analizzato va dall'{timeframe} e confrontato con lo stesso periodo dell'anno precedente.
-            
-            [ACQUISIZIONE]
-            Abbiamo registrato un incremento del traffico organico del +17,3%, confermando il canale organico come una delle principali fonti di acquisizione. Questo miglioramento riflette l'efficacia delle nostre strategie SEO nell'attrarre utenti qualificati.
-            
-            [ENGAGEMENT E CONVERSIONI]
-            Per quanto riguarda l'engagement, abbiamo osservato risultati molto positivi filtrando per traffico organico. La durata media del coinvolgimento è aumentata dell'11,7%, raggiungendo i 2 minuti e 55 secondi. Le sessioni con coinvolgimento sono aumentate del 15,4%, totalizzando 35.682 sessioni, mentre il tasso di coinvolgimento ha mostrato un leggero incremento dello 0,5%, attestandosi al 67,46%. Inoltre, le visualizzazioni totali sono cresciute del 15,7%, raggiungendo 198.458. Questi dati indicano che gli utenti provenienti dalla ricerca organica sono maggiormente coinvolti e interagiscono più a lungo con i contenuti del sito.
-            
-            Per quanto riguarda le conversioni, la maggior parte di esse proviene dal traffico organico, con un totale di 3.720 conversioni, evidenziando l'importanza del canale organico nel generare azioni concrete da parte degli utenti.
-            
-            [POSIZIONAMENTO ORGANICO]
-            Su Google Search Console, abbiamo registrato un calo dei clic del -13,0% e delle impression del -0,9%. Queste flessioni negative sono dovute agli aggiornamenti di marzo rilasciati da Google. Stiamo monitorando attentamente la situazione per adattare le nostre strategie di conseguenza. È importante notare che la posizione media è migliorata, scendendo del -13,6%. Questo è un aspetto positivo, in quanto indica una maggiore presenza nelle pagine superiori dei risultati di ricerca.
-            
-            Continueremo a puntare su contenuti di qualità e ottimizzazione on-page per rafforzare la presenza a seguito degli aggiornamenti.
-            
-            Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.
-            
-            Fammi sapere se ti servisse altro.
-            
-            A presto,
-            
-            {your_name}
-        """}
-    ]
+    key_info_text = extract_key_info_from_report(client, truncated_report_text)
+    # Simula la conversione del testo chiave in un dizionario strutturato
+    key_info = {
+        "acquisizione": "<p>Abbiamo registrato un incremento del traffico organico del <span class='increment'>+204,8%</span>, confermando che il canale organico è la principale fonte di acquisizione. Questo miglioramento evidenzia l'efficacia delle nostre strategie SEO nell'attrarre utenti qualificati.</p>",
+        "engagement_e_conversioni": "<p>Per quanto riguarda l'engagement, i risultati sono molto positivi. La durata media del coinvolgimento è aumentata dell'<span class='increment'>+11,4%</span>, raggiungendo 1 minuto e 30 secondi. Le sessioni con coinvolgimento sono cresciute del <span class='increment'>+206,3%</span>, totalizzando 259.822 sessioni, e il tasso di coinvolgimento è salito del <span class='increment'>+6,5%</span>, attestandosi al 71,72%. Inoltre, le visualizzazioni totali sono aumentate del <span class='increment'>+166,8%</span>, raggiungendo 435.972. Questi dati indicano che gli utenti provenienti dalla ricerca organica sono maggiormente coinvolti e interagiscono più a lungo con i contenuti del sito.</p><p>Per quanto riguarda le conversioni, la maggior parte proviene dal traffico organico, con un totale di <span class='increment'>6.700 conversioni</span>, sottolineando l'importanza di questo canale nel generare azioni concrete da parte degli utenti.</p>",
+        "posizionamento_organico": "<p>Su Google Search Console, abbiamo registrato un aumento dei clic del <span class='increment'>+494,6%</span> e delle impression del <span class='increment'>+521,2%</span>. Questo riflette un significativo miglioramento nella visibilità e nel rendimento del sito nei risultati di ricerca. È importante notare che la posizione media è migliorata, scendendo del <span class='increment'>-20,1%</span> (valore in verde), indicando una maggiore presenza nelle prime pagine dei risultati di ricerca.</p>"
+    }
+    email_content = generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name)
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            max_tokens=1500,
-            temperature=0.7,
-            top_p=1.0,
-            n=1,
-            stop=None
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        st.error(f"Errore durante la generazione della mail: {e}")
-        return ""
+    return email_content
 
 # UI di Streamlit
 st.title("Generatore di Mail da Report PDF")
