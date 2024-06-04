@@ -104,7 +104,7 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, re
 # UI di Streamlit
 st.title("Generatore di Mail da Report PDF")
 
-api_key = st.text_input("Inserisci la tua API key di OpenAI, (creandola qui)[https://platform.openai.com/api-keys]", type="password")
+api_key = st.text_input("Inserisci la tua API key di OpenAI, [creandola qui](https://platform.openai.com/api-keys)", type="password")
 if api_key:
     client = OpenAI(api_key=api_key)
 
