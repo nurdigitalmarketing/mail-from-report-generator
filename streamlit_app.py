@@ -74,7 +74,7 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, re
             n=1,
             stop=None
         )
-        return response.choices[0].message["content"]
+        return response.choices[0].message.content
     except Exception as e:
         st.error(f"Errore durante la generazione della mail: {e}")
         return ""
