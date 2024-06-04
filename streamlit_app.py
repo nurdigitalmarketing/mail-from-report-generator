@@ -1,6 +1,7 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 from openai import OpenAI
+import tiktoken
 
 def extract_text_from_pdf(file):
     pdf_reader = PdfReader(file)
@@ -9,14 +10,24 @@ def extract_text_from_pdf(file):
         text += page.extract_text()
     return text
 
+def truncate_text(text, max_tokens):
+    encoding = tiktoken.encoding_for_model("gpt-4o")
+    tokens = encoding.encode(text)
+    if len(tokens) > max_tokens:
+        tokens = tokens[:max_tokens]
+    return encoding.decode(tokens)
+
 def generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name):
+    max_input_tokens = 126000  # Set according to the context window of the model
+    truncated_report_text = truncate_text(report_text, max_input_tokens)
+
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": f"""
             Crea una mail per il cliente {client_name} (referente: {contact_name}) riguardante il report {report_type} per il periodo {timeframe}.
             Ecco il testo del report:
             
-            {report_text}
+            {truncated_report_text}
             
             Utilizza il seguente template:
             
@@ -50,9 +61,9 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, re
     ]
 
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=messages,
-        max_tokens=1500,
+        max_tokens=1500,  # Set to a reasonable number for the response
         temperature=0.7,
         top_p=1.0,
         n=1,
