@@ -1,12 +1,11 @@
 import streamlit as st
-import PyPDF2
+from PyPDF2 import PdfReader
 import openai
 
 def extract_text_from_pdf(file):
-    pdf_reader = PyPDF2.PdfFileReader(file)
+    pdf_reader = PdfReader(file)
     text = ""
-    for page_num in range(pdf_reader.numPages):
-        page = pdf_reader.getPage(page_num)
+    for page in pdf_reader.pages:
         text += page.extract_text()
     return text
 
@@ -81,4 +80,3 @@ if api_key:
             st.text_area("Email generata", email_content, height=400)
 
             st.download_button("Scarica la mail", email_content)
-
