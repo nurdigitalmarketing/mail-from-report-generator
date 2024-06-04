@@ -45,12 +45,7 @@ def extract_key_info_from_report(client, report_text):
 
 def generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name):
     email_template = f"""
-    <!DOCTYPE html>
-    <html lang="it">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Report SEO {client_name}</title>
+    <body>
         <style>
             .increment {{
                 color: green;
@@ -59,8 +54,6 @@ def generate_email_content(client_name, contact_name, timeframe, report_type, ke
                 color: red;
             }}
         </style>
-    </head>
-    <body>
         <p>Ciao {contact_name},</p>
         <p>Ti invio il report {report_type} relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
         <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
