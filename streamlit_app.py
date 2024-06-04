@@ -2,6 +2,7 @@ import streamlit as st
 from PyPDF2 import PdfReader
 from openai import OpenAI
 import tiktoken
+from streamlit_quill import st_quill
 
 def extract_text_from_pdf(file):
     try:
@@ -45,7 +46,12 @@ def extract_key_info_from_report(client, report_text):
 
 def generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name):
     email_template = f"""
-    <body>
+    <!DOCTYPE html>
+    <html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Report SEO {client_name}</title>
         <style>
             .increment {{
                 color: green;
@@ -54,6 +60,8 @@ def generate_email_content(client_name, contact_name, timeframe, report_type, ke
                 color: red;
             }}
         </style>
+    </head>
+    <body>
         <p>Ciao {contact_name},</p>
         <p>Ti invio il report {report_type} relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
         <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
@@ -69,12 +77,13 @@ def generate_email_content(client_name, contact_name, timeframe, report_type, ke
         
         <p>Continueremo a puntare su contenuti di qualità e ottimizzazione on-page per rafforzare la presenza organica del sito.</p>
         
-        <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al [report online](https://www.report.nur.it/) in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
+        <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
         
         <p>Resto a disposizione per qualsiasi ulteriore informazione.</p>
         
         <p>Cordiali saluti,<br>{your_name}</p>
     </body>
+    </html>
     """
     return email_template
 
@@ -96,7 +105,7 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, re
 # UI di Streamlit
 st.title("Generatore di Mail da Report PDF")
 
-api_key = st.text_input("Inserisci la tua API key di OpenAI, [creandola qui](https://platform.openai.com/api-keys)", type="password")
+api_key = st.text_input("Inserisci la tua API key di OpenAI", type="password")
 if api_key:
     client = OpenAI(api_key=api_key)
 
@@ -106,7 +115,7 @@ if api_key:
         client_name = st.text_input("Nome del cliente")
         contact_name = st.text_input("Nome del referente")
         timeframe = st.text_input("Timeframe (es. 1 marzo 2024 - 31 maggio 2024)")
-        report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR", "Year Review"])
+        report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR", "year review"])
         your_name = st.text_input("Il tuo nome")
 
         if st.button("Genera Mail"):
@@ -116,5 +125,5 @@ if api_key:
                 with st.spinner("Generazione dell'email in corso..."):
                     report_text = extract_text_from_pdf(uploaded_file)
                     email_content = generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name)
-                    st.text_area("Email generata", email_content, height=400)
-                    st.download_button("Scarica la mail", email_content)
+                    quill_value = st_quill(value=email_content, html=True)
+                    st.download_button("Scarica la mail", quill_value)
