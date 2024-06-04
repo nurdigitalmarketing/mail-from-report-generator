@@ -47,17 +47,22 @@ def extract_key_info_from_report(client, report_text):
 def generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name):
     email_template = f"""
     <p>Ciao {contact_name},</p>
+    <p>&nbsp;</p>
     <p>Scrivo per condividerti il report {report_type} per progetto SEO di {client_name}, con un focus particolare sui risultati del canale organico.</p>
     <p>Il periodo analizzato va dall'{timeframe} e confrontato con lo stesso periodo dell'anno precedente.</p>
+    <p>&nbsp;</p>
     <p><strong>[ACQUISIZIONE]</strong></p>
     {key_info['acquisizione']}
+    <p>&nbsp;</p>
     <p><strong>[ENGAGEMENT E CONVERSIONI]</strong></p>
     {key_info['engagement_e_conversioni']}
+    <p>&nbsp;</p>
     <p><strong>[POSIZIONAMENTO ORGANICO]</strong></p>
     {key_info['posizionamento_organico']}
-    <p>Continueremo a puntare su contenuti di qualità e ottimizzazione on-page per rafforzare la presenza a seguito degli aggiornamenti.</p>
-    <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
-    <p>Fammi sapere se ti servisse altro.</p>
+    <p>&nbsp;</p>
+    <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che &egrave; possibile accedere al <a href="https://www.report.nur.it/" target="_blank" rel="noopener noreferrer">report online</a> in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
+    <p>Rimango a disposizione per qualsiasi chiarimento.</p>
+    <p>&nbsp;</p>
     <p>A presto,</p>
     <p><strong>{your_name}</strong></p>
     """
