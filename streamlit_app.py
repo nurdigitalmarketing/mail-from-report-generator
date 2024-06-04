@@ -69,13 +69,12 @@ def generate_email_content(client_name, contact_name, timeframe, report_type, ke
         
         <p>Continueremo a puntare su contenuti di qualità e ottimizzazione on-page per rafforzare la presenza organica del sito.</p>
         
-        <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
+        <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al [report online](https://www.report.nur.it/) in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
         
         <p>Resto a disposizione per qualsiasi ulteriore informazione.</p>
         
         <p>Cordiali saluti,<br>{your_name}</p>
     </body>
-    </html>
     """
     return email_template
 
@@ -107,7 +106,7 @@ if api_key:
         client_name = st.text_input("Nome del cliente")
         contact_name = st.text_input("Nome del referente")
         timeframe = st.text_input("Timeframe (es. 1 marzo 2024 - 31 maggio 2024)")
-        report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR", "year review"])
+        report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR", "Year Review"])
         your_name = st.text_input("Il tuo nome")
 
         if st.button("Genera Mail"):
