@@ -4,11 +4,15 @@ from openai import OpenAI
 import tiktoken
 
 def extract_text_from_pdf(file):
-    pdf_reader = PdfReader(file)
-    text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text()
-    return text
+    try:
+        pdf_reader = PdfReader(file)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+        return text
+    except Exception as e:
+        st.error(f"Errore durante l'estrazione del testo: {e}")
+        return ""
 
 def truncate_text(text, max_tokens):
     encoding = tiktoken.encoding_for_model("gpt-4o")
@@ -60,17 +64,20 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, re
         """}
     ]
 
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        max_tokens=1500,  # Set to a reasonable number for the response
-        temperature=0.7,
-        top_p=1.0,
-        n=1,
-        stop=None
-    )
-
-    return response.choices[0].message["content"]
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            max_tokens=1500,
+            temperature=0.7,
+            top_p=1.0,
+            n=1,
+            stop=None
+        )
+        return response.choices[0].message["content"]
+    except Exception as e:
+        st.error(f"Errore durante la generazione della mail: {e}")
+        return ""
 
 # UI di Streamlit
 st.title("Generatore di Mail da Report PDF")
@@ -89,9 +96,11 @@ if api_key:
         your_name = st.text_input("Il tuo nome")
 
         if st.button("Genera Mail"):
-            report_text = extract_text_from_pdf(uploaded_file)
-            email_content = generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name)
-            st.text_area("Email generata", email_content, height=400)
-
-            st.download_button("Scarica la mail", email_content)
-
+            if not all([client_name, contact_name, timeframe, report_type, your_name]):
+                st.error("Per favore, compila tutti i campi richiesti.")
+            else:
+                with st.spinner("Generazione dell'email in corso..."):
+                    report_text = extract_text_from_pdf(uploaded_file)
+                    email_content = generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name)
+                    st.text_area("Email generata", email_content, height=400)
+                    st.download_button("Scarica la mail", email_content)
