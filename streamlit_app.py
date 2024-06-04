@@ -47,25 +47,19 @@ def extract_key_info_from_report(client, report_text):
 def generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name):
     email_template = f"""
     <p>Ciao {contact_name},</p>
-    <p>Ti invio il report {report_type} relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
-    <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
-    
-    <h3>Acquisizione</h3>
+    <p>Scrivo per condividerti il report {report_type} per progetto SEO di {client_name}, con un focus particolare sui risultati del canale organico.</p>
+    <p>Il periodo analizzato va dall'{timeframe} e confrontato con lo stesso periodo dell'anno precedente.</p>
+    <p><strong>[ACQUISIZIONE]</strong></p>
     {key_info['acquisizione']}
-    
-    <h3>Engagement e Conversioni</h3>
+    <p><strong>[ENGAGEMENT E CONVERSIONI]</strong></p>
     {key_info['engagement_e_conversioni']}
-    
-    <h3>Posizionamento Organico</h3>
+    <p><strong>[POSIZIONAMENTO ORGANICO]</strong></p>
     {key_info['posizionamento_organico']}
-    
-    <p>Continueremo a puntare su contenuti di qualità e ottimizzazione on-page per rafforzare la presenza organica del sito.</p>
-    
+    <p>Continueremo a puntare su contenuti di qualità e ottimizzazione on-page per rafforzare la presenza a seguito degli aggiornamenti.</p>
     <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
-    
-    <p>Resto a disposizione per qualsiasi ulteriore informazione.</p>
-    
-    <p>Cordiali saluti,<br>{your_name}</p>
+    <p>Fammi sapere se ti servisse altro.</p>
+    <p>A presto,</p>
+    <p><strong>{your_name}</strong></p>
     """
     return email_template
 
@@ -76,9 +70,9 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, re
     key_info_text = extract_key_info_from_report(client, truncated_report_text)
     # Simula la conversione del testo chiave in un dizionario strutturato
     key_info = {
-        "acquisizione": "<p>Abbiamo registrato un incremento del traffico organico del <span style='color: green; font-weight: bold;'>+204,8%</span>, confermando che il canale organico è la principale fonte di acquisizione. Questo miglioramento evidenzia l'efficacia delle nostre strategie SEO nell'attrarre utenti qualificati.</p>",
-        "engagement_e_conversioni": "<p>Per quanto riguarda l'engagement, i risultati sono molto positivi. La durata media del coinvolgimento è aumentata dell'<span style='color: green; font-weight: bold;'>+11,4%</span>, raggiungendo 1 minuto e 30 secondi. Le sessioni con coinvolgimento sono cresciute del <span style='color: green; font-weight: bold;'>+206,3%</span>, totalizzando 259.822 sessioni, e il tasso di coinvolgimento è salito del <span style='color: green; font-weight: bold;'>+6,5%</span>, attestandosi al 71,72%. Inoltre, le visualizzazioni totali sono aumentate del <span style='color: green; font-weight: bold;'>+166,8%</span>, raggiungendo 435.972. Questi dati indicano che gli utenti provenienti dalla ricerca organica sono maggiormente coinvolti e interagiscono più a lungo con i contenuti del sito.</p><p>Per quanto riguarda le conversioni, la maggior parte proviene dal traffico organico, con un totale di <span style='color: green; font-weight: bold;'>6.700 conversioni</span>, sottolineando l'importanza di questo canale nel generare azioni concrete da parte degli utenti.</p>",
-        "posizionamento_organico": "<p>Su Google Search Console, abbiamo registrato un aumento dei clic del <span style='color: green; font-weight: bold;'>+494,6%</span> e delle impression del <span style='color: green; font-weight: bold;'>+521,2%</span>. Questo riflette un significativo miglioramento nella visibilità e nel rendimento del sito nei risultati di ricerca. È importante notare che la posizione media è migliorata, scendendo del <span style='color: green; font-weight: bold;'>-20,1%</span> (valore in verde), indicando una maggiore presenza nelle prime pagine dei risultati di ricerca.</p>"
+        "acquisizione": "<p>Abbiamo registrato un incremento del traffico organico del <span style='color: green; font-weight: bold;'>+17,3%</span>, confermando che il canale organico è la principale fonte di acquisizione. Questo miglioramento evidenzia l'efficacia delle nostre strategie SEO nell'attrarre utenti qualificati.</p>",
+        "engagement_e_conversioni": "<p>Per quanto riguarda l'engagement, i risultati sono molto positivi filtrando per traffico organico. La durata media del coinvolgimento è aumentata dell'<span style='color: green; font-weight: bold;'>+11,7%</span>, raggiungendo i 2 minuti e 55 secondi. Le sessioni con coinvolgimento sono aumentate del <span style='color: green; font-weight: bold;'>+15,4%</span>, totalizzando 35.682 sessioni, mentre il tasso di coinvolgimento ha mostrato un leggero incremento dello <span style='color: green; font-weight: bold;'>+0,5%</span>, attestandosi al 67,46%. Inoltre, le visualizzazioni totali sono cresciute del <span style='color: green; font-weight: bold;'>+15,7%</span>, raggiungendo 198.458. Questi dati indicano che gli utenti provenienti dalla ricerca organica sono maggiormente coinvolti e interagiscono più a lungo con i contenuti del sito.</p><p>Per quanto riguarda le conversioni, la maggior parte proviene dal traffico organico, con un totale di <span style='color: green; font-weight: bold;'>3.720 conversioni</span>, sottolineando l'importanza di questo canale nel generare azioni concrete da parte degli utenti.</p>",
+        "posizionamento_organico": "<p>Su Google Search Console, abbiamo registrato un calo dei clic del <span style='color: red; font-weight: bold;'>-13,0%</span> e delle impression del <span style='color: red; font-weight: bold;'>-0,9%</span>. Queste flessioni negative sono dovute agli aggiornamenti di marzo rilasciati da Google. Stiamo monitorando attentamente la situazione per adattare le nostre strategie di conseguenza. È importante notare che la posizione media è migliorata, scendendo del <span style='color: green; font-weight: bold;'>-13,6%</span>. Questo è un aspetto positivo, in quanto indica una maggiore presenza nelle pagine superiori dei risultati di ricerca.</p>"
     }
     email_content = generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name)
 
