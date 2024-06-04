@@ -2,7 +2,6 @@ import streamlit as st
 from PyPDF2 import PdfReader
 from openai import OpenAI
 import tiktoken
-from streamlit_quill import st_quill
 
 def extract_text_from_pdf(file):
     try:
@@ -125,5 +124,5 @@ if api_key:
                 with st.spinner("Generazione dell'email in corso..."):
                     report_text = extract_text_from_pdf(uploaded_file)
                     email_content = generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name)
-                    quill_value = st_quill(value=email_content, html=True)
-                    st.download_button("Scarica la mail", quill_value)
+                    st.markdown(email_content, unsafe_allow_html=True)
+                    st.download_button("Scarica la mail", email_content)
