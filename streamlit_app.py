@@ -127,5 +127,8 @@ if api_key:
                 with st.spinner("Generazione dell'email in corso..."):
                     report_text = extract_text_from_pdf(uploaded_file)
                     email_content = generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name)
-                    quill_value = st_quill(value=email_content, html=True)
-                    st.download_button("Scarica la mail", quill_value, file_name='email.html')
+                    st.session_state['email_content'] = email_content
+
+if 'email_content' in st.session_state:
+    quill_value = st_quill(value=st.session_state['email_content'], html=True)
+    st.download_button("Scarica la mail", quill_value, file_name='email.html')
