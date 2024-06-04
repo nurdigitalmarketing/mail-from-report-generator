@@ -54,9 +54,11 @@ def generate_email_content(client_name, contact_name, timeframe, report_type, ke
         <style>
             .increment {{
                 color: green;
+                font-weight: bold;
             }}
             .decrement {{
                 color: red;
+                font-weight: bold;
             }}
         </style>
     </head>
@@ -125,4 +127,4 @@ if api_key:
                     report_text = extract_text_from_pdf(uploaded_file)
                     email_content = generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name)
                     st.markdown(email_content, unsafe_allow_html=True)
-                    st.download_button("Scarica la mail", email_content)
+                    st.download_button("Scarica la mail", email_content, file_name='email.html')
