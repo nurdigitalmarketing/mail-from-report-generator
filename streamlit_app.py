@@ -23,7 +23,7 @@ def truncate_text(text, max_tokens):
     tokens = encoding.encode(text)
     if len(tokens) > max_tokens:
         tokens = tokens[:max_tokens]
-    return encoding.decode(tokens) 
+    return encoding.decode(tokens)
 
 def format_number(number):
     try:
@@ -83,8 +83,8 @@ def extract_key_info_from_report(client, report_text):
         model="gpt-4o",
         messages=messages,
         max_tokens=1000,
-        temperature=07,
-        top_p=10,
+        temperature=0.7,
+        top_p=1.0,
         n=1,
         stop=None
     )
