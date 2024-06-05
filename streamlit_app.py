@@ -4,6 +4,7 @@ from openai import OpenAI
 import tiktoken
 from streamlit_quill import st_quill
 import pyperclip
+import json
 
 def extract_text_from_pdf(file):
     try:
@@ -73,6 +74,9 @@ def extract_key_info_from_report(client, report_text):
         stop=None
     )
 
+    # Aggiungi debug della risposta
+    st.write(response.choices[0].message.content)
+
     return response.choices[0].message.content
 
 def generate_email_content(client_name, contact_name, timeframe, key_info, your_name):
@@ -99,18 +103,18 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
 
     <p><strong>[Engagement e Conversioni]</strong></p>
     <ul>
-        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']}% con un {"incremento" if key_info['engagement_e_conversioni']['engagement_rate_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engagement_rate_change']}%</li>
-        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']} con un {"incremento" if key_info['engagement_e_conversioni']['avg_engagement_duration_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['avg_engagement_duration_change']}%</li>
-        <li>Sessioni con coinvolgimento: {format_number(key_info['engagement_e_conversioni']['engaged_sessions'])} con un {"incremento" if key_info['engagement_e_conversioni']['engaged_sessions_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engaged_sessions_change']}%</li>
-        <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])} con un {"incremento" if key_info['engagement_e_conversioni']['conversions_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['conversions_change']}%</li>
+        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']}% con un {"incremento" if float(key_info['engagement_e_conversioni']['engagement_rate_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engagement_rate_change']}%</li>
+        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']} con un {"incremento" if float(key_info['engagement_e_conversioni']['avg_engagement_duration_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['avg_engagement_duration_change']}%</li>
+        <li>Sessioni con coinvolgimento: {format_number(key_info['engagement_e_conversioni']['engaged_sessions'])} con un {"incremento" if float(key_info['engagement_e_conversioni']['engaged_sessions_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engaged_sessions_change']}%</li>
+        <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])} con un {"incremento" if float(key_info['engagement_e_conversioni']['conversions_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['conversions_change']}%</li>
         <li>Canale che porta maggiori conversioni: {key_info['engagement_e_conversioni']['top_channel']}</li>
     </ul>
 
     <p><strong>[Search Console]</strong></p>
     <ul>
-        <li>Clic: {key_info['posizionamento_organico']['clicks']} con un {"incremento" if key_info['posizionamento_organico']['clicks_change'] >= 0 else "decremento"} del {key_info['posizionamento_organico']['clicks_change']}%</li>
-        <li>Impression: {key_info['posizionamento_organico']['impressions']} con un {"incremento" if key_info['posizionamento_organico']['impressions_change'] >= 0 else "decremento"} del {key_info['posizionamento_organico']['impressions_change']}%</li>
-        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} con un {"incremento" if key_info['posizionamento_organico']['avg_position_change'] >= 0 else "decremento"} del {key_info['posizionamento_organico']['avg_position_change']}%</li>
+        <li>Clic: {key_info['posizionamento_organico']['clicks']} con un {"incremento" if float(key_info['posizionamento_organico']['clicks_change']) >= 0 else "decremento"} del {key_info['posizionamento_organico']['clicks_change']}%</li>
+        <li>Impression: {key_info['posizionamento_organico']['impressions']} con un {"incremento" if float(key_info['posizionamento_organico']['impressions_change']) >= 0 else "decremento"} del {key_info['posizionamento_organico']['impressions_change']}%</li>
+        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} con un {"incremento" if float(key_info['posizionamento_organico']['avg_position_change']) >= 0 else "decremento"} del {key_info['posizionamento_organico']['avg_position_change']}%</li>
     </ul>
 
     <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
@@ -128,10 +132,17 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
 
     key_info_text = extract_key_info_from_report(client, truncated_report_text)
     
-    # Converti il testo JSON restituito in un dizionario
-    import json
-    key_info = json.loads(key_info_text)
+    # Aggiungi controllo se la risposta è vuota
+    if not key_info_text.strip():
+        st.error("Errore: la risposta dell'API è vuota.")
+        return ""
     
+    try:
+        key_info = json.loads(key_info_text)
+    except json.JSONDecodeError as e:
+        st.error(f"Errore nella decodifica del JSON: {e}")
+        return ""
+
     email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name)
 
     return email_content
@@ -174,7 +185,8 @@ if api_key:
                 with st.spinner("Generazione dell'email in corso..."):
                     report_text = extract_text_from_pdf(uploaded_file)
                     email_content = generate_email(client, report_text, client_name, contact_name, timeframe, your_name)
-                    st.session_state['email_content'] = email_content
+                    if email_content:
+                        st.session_state['email_content'] = email_content
 
 if 'email_content' in st.session_state:
     quill_value = st_quill(value=st.session_state['email_content'], html=True)
