@@ -23,11 +23,41 @@ def truncate_text(text, max_tokens):
         tokens = tokens[:max_tokens]
     return encoding.decode(tokens)
 
+def format_number(number):
+    return f"{number:,}".replace(",", ".")
+
 def extract_key_info_from_report(client, report_text):
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": f"""
             Analizza il seguente testo e estrai le informazioni chiave riguardanti acquisizione, engagement, conversioni e posizionamento organico.
+            Fornisci i dati nel seguente formato JSON:
+            {{
+                "acquisizione": {{
+                    "users": "numero",
+                    "sessions": "numero",
+                    "top_countries": "lista di paesi"
+                }},
+                "engagement_e_conversioni": {{
+                    "engagement_rate": "percentuale",
+                    "engagement_rate_change": "percentuale",
+                    "avg_engagement_duration": "tempo",
+                    "avg_engagement_duration_change": "percentuale",
+                    "engaged_sessions": "numero",
+                    "engaged_sessions_change": "percentuale",
+                    "conversions": "numero",
+                    "conversions_change": "percentuale",
+                    "top_channel": "canale"
+                }},
+                "posizionamento_organico": {{
+                    "clicks": "percentuale",
+                    "clicks_change": "percentuale",
+                    "impressions": "percentuale",
+                    "impressions_change": "percentuale",
+                    "avg_position": "numero",
+                    "avg_position_change": "percentuale"
+                }}
+            }}
             Testo del report:
             {report_text}
         """}
@@ -62,25 +92,25 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
     <p><strong>Risultati raggiunti:</strong></p>
     <p><strong>[Acquisizione]</strong></p>
     <ul>
-        <li>Utenti: {key_info['acquisizione']['users']}</li>
-        <li>Sessioni: {key_info['acquisizione']['sessions']}</li>
+        <li>Utenti: {format_number(key_info['acquisizione']['users'])}</li>
+        <li>Sessioni: {format_number(key_info['acquisizione']['sessions'])}</li>
         <li>Paesi con maggiore acquisizione di utenti: {key_info['acquisizione']['top_countries']}</li>
     </ul>
 
     <p><strong>[Engagement e Conversioni]</strong></p>
     <ul>
-        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']}%</li>
-        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']}</li>
-        <li>Sessioni con coinvolgimento: {key_info['engagement_e_conversioni']['engaged_sessions']}</li>
-        <li>Conversioni: {key_info['engagement_e_conversioni']['conversions']}</li>
+        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']}% con un {"incremento" if key_info['engagement_e_conversioni']['engagement_rate_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engagement_rate_change']}%</li>
+        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']} con un {"incremento" if key_info['engagement_e_conversioni']['avg_engagement_duration_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['avg_engagement_duration_change']}%</li>
+        <li>Sessioni con coinvolgimento: {format_number(key_info['engagement_e_conversioni']['engaged_sessions'])} con un {"incremento" if key_info['engagement_e_conversioni']['engaged_sessions_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engaged_sessions_change']}%</li>
+        <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])} con un {"incremento" if key_info['engagement_e_conversioni']['conversions_change'] >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['conversions_change']}%</li>
         <li>Canale che porta maggiori conversioni: {key_info['engagement_e_conversioni']['top_channel']}</li>
     </ul>
 
     <p><strong>[Search Console]</strong></p>
     <ul>
-        <li>Clic: {key_info['posizionamento_organico']['clicks']}</li>
-        <li>Impression: {key_info['posizionamento_organico']['impressions']}</li>
-        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']}</li>
+        <li>Clic: {key_info['posizionamento_organico']['clicks']} con un {"incremento" if key_info['posizionamento_organico']['clicks_change'] >= 0 else "decremento"} del {key_info['posizionamento_organico']['clicks_change']}%</li>
+        <li>Impression: {key_info['posizionamento_organico']['impressions']} con un {"incremento" if key_info['posizionamento_organico']['impressions_change'] >= 0 else "decremento"} del {key_info['posizionamento_organico']['impressions_change']}%</li>
+        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} con un {"incremento" if key_info['posizionamento_organico']['avg_position_change'] >= 0 else "decremento"} del {key_info['posizionamento_organico']['avg_position_change']}%</li>
     </ul>
 
     <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
@@ -97,26 +127,11 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
     truncated_report_text = truncate_text(report_text, max_input_tokens)
 
     key_info_text = extract_key_info_from_report(client, truncated_report_text)
-    # Simula la conversione del testo chiave in un dizionario strutturato
-    key_info = {
-        "acquisizione": {
-            "users": "12345",  # Questo è un esempio, sostituisci con il valore reale
-            "sessions": "67890",
-            "top_countries": "Italia, USA, UK"
-        },
-        "engagement_e_conversioni": {
-            "engagement_rate": "67.46",
-            "avg_engagement_duration": "2 min 55 sec",
-            "engaged_sessions": "35,682",
-            "conversions": "3,720",
-            "top_channel": "Ricerca organica"
-        },
-        "posizionamento_organico": {
-            "clicks": "-13.0%",
-            "impressions": "-0.9%",
-            "avg_position": "-13.6%"
-        }
-    }
+    
+    # Converti il testo JSON restituito in un dizionario
+    import json
+    key_info = json.loads(key_info_text)
+    
     email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name)
 
     return email_content
