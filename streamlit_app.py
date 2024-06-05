@@ -37,7 +37,7 @@ def extract_key_info_from_report(client, report_text):
                 "acquisizione": {{
                     "users": "numero",
                     "sessions": "numero",
-                    "top_countries": "lista di paesi"
+                    "top_countries": ["lista", "di", "paesi"]
                 }},
                 "engagement_e_conversioni": {{
                     "engagement_rate": "percentuale",
@@ -76,9 +76,17 @@ def extract_key_info_from_report(client, report_text):
 
     response_content = response.choices[0].message.content
 
-    st.write(response_content)  # Debug: Verifica il contenuto della risposta
+    st.write(f"Response content: {response_content}")  # Debug: Verifica il contenuto della risposta
 
-    return response_content
+    if not response_content.strip():
+        st.error("Errore: la risposta dell'API è vuota.")
+        return {}
+
+    try:
+        return json.loads(response_content)
+    except json.JSONDecodeError as e:
+        st.error(f"Errore nella decodifica del JSON: {e}")
+        return {}
 
 def generate_email_content(client_name, contact_name, timeframe, key_info, your_name):
     email_template = f"""
@@ -131,17 +139,9 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
     max_input_tokens = 126000  # Set according to the context window of the model
     truncated_report_text = truncate_text(report_text, max_input_tokens)
 
-    key_info_text = extract_key_info_from_report(client, truncated_report_text)
+    key_info = extract_key_info_from_report(client, truncated_report_text)
     
-    # Aggiungi controllo se la risposta è vuota
-    if not key_info_text.strip():
-        st.error("Errore: la risposta dell'API è vuota.")
-        return ""
-    
-    try:
-        key_info = json.loads(key_info_text)
-    except json.JSONDecodeError as e:
-        st.error(f"Errore nella decodifica del JSON: {e}")
+    if not key_info:
         return ""
 
     email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name)
