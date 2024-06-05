@@ -3,6 +3,7 @@ from PyPDF2 import PdfReader
 from openai import OpenAI
 import tiktoken
 from streamlit_quill import st_quill
+import pyperclip
 
 def extract_text_from_pdf(file):
     try:
@@ -44,47 +45,99 @@ def extract_key_info_from_report(client, report_text):
 
     return response.choices[0].message.content
 
-def generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name):
+def generate_email_content(client_name, contact_name, timeframe, key_info, your_name):
     email_template = f"""
     <p>Ciao {contact_name},</p>
-    <p>&nbsp;</p>
-    <p>Scrivo per condividerti il report {report_type} per progetto SEO di {client_name}, con un focus particolare sui risultati del canale organico.</p>
-    <p>Il periodo analizzato va dall'{timeframe} e confrontato con lo stesso periodo dell'anno precedente.</p>
-    <p>&nbsp;</p>
-    <p><strong>[ACQUISIZIONE]</strong></p>
-    {key_info['acquisizione']}
-    <p>&nbsp;</p>
-    <p><strong>[ENGAGEMENT E CONVERSIONI]</strong></p>
-    {key_info['engagement_e_conversioni']}
-    <p>&nbsp;</p>
-    <p><strong>[POSIZIONAMENTO ORGANICO]</strong></p>
-    {key_info['posizionamento_organico']}
-    <p>&nbsp;</p>
-    <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che &egrave; possibile accedere al <a href="https://www.report.nur.it/" target="_blank" rel="noopener noreferrer">report online</a> in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
-    <p>Rimango a disposizione per qualsiasi chiarimento.</p>
-    <p>&nbsp;</p>
+    <p>Ti invio il report relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
+    <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
+    <p>Di seguito troverai i dettagli dei risultati raggiunti:</p>
+
+    <p><strong>Attività svolte in questo periodo:</strong></p>
+    <ul>
+        <li>Miglioramento dei contenuti su diverse pagine chiave</li>
+        <li>Aggiunta di link interni a pagine chiave</li>
+        <li>Costruzione di nuovi backlink (vedi report sui link)</li>
+    </ul>
+
+    <p><strong>Risultati raggiunti:</strong></p>
+    <p><strong>[Acquisizione]</strong></p>
+    <ul>
+        <li>Utenti: {key_info['acquisizione']['users']}</li>
+        <li>Sessioni: {key_info['acquisizione']['sessions']}</li>
+        <li>Paesi con maggiore acquisizione di utenti: {key_info['acquisizione']['top_countries']}</li>
+    </ul>
+
+    <p><strong>[Engagement e Conversioni]</strong></p>
+    <ul>
+        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']}%</li>
+        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']}</li>
+        <li>Sessioni con coinvolgimento: {key_info['engagement_e_conversioni']['engaged_sessions']}</li>
+        <li>Conversioni: {key_info['engagement_e_conversioni']['conversions']}</li>
+        <li>Canale che porta maggiori conversioni: {key_info['engagement_e_conversioni']['top_channel']}</li>
+    </ul>
+
+    <p><strong>[Search Console]</strong></p>
+    <ul>
+        <li>Clic: {key_info['posizionamento_organico']['clicks']}</li>
+        <li>Impression: {key_info['posizionamento_organico']['impressions']}</li>
+        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']}</li>
+    </ul>
+
+    <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
+
+    <p>Fammi sapere se ti servisse altro.</p>
+
     <p>A presto,</p>
     <p><strong>{your_name}</strong></p>
     """
     return email_template
 
-def generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name):
+def generate_email(client, report_text, client_name, contact_name, timeframe, your_name):
     max_input_tokens = 126000  # Set according to the context window of the model
     truncated_report_text = truncate_text(report_text, max_input_tokens)
 
     key_info_text = extract_key_info_from_report(client, truncated_report_text)
     # Simula la conversione del testo chiave in un dizionario strutturato
     key_info = {
-        "acquisizione": "<p>Abbiamo registrato un incremento del traffico organico del <span style='color: green; font-weight: bold;'>+17,3%</span>, confermando che il canale organico è la principale fonte di acquisizione. Questo miglioramento evidenzia l'efficacia delle nostre strategie SEO nell'attrarre utenti qualificati.</p>",
-        "engagement_e_conversioni": "<p>Per quanto riguarda l'engagement, i risultati sono molto positivi filtrando per traffico organico. La durata media del coinvolgimento è aumentata dell'<span style='color: green; font-weight: bold;'>+11,7%</span>, raggiungendo i 2 minuti e 55 secondi. Le sessioni con coinvolgimento sono aumentate del <span style='color: green; font-weight: bold;'>+15,4%</span>, totalizzando 35.682 sessioni, mentre il tasso di coinvolgimento ha mostrato un leggero incremento dello <span style='color: green; font-weight: bold;'>+0,5%</span>, attestandosi al 67,46%. Inoltre, le visualizzazioni totali sono cresciute del <span style='color: green; font-weight: bold;'>+15,7%</span>, raggiungendo 198.458. Questi dati indicano che gli utenti provenienti dalla ricerca organica sono maggiormente coinvolti e interagiscono più a lungo con i contenuti del sito.</p><p>Per quanto riguarda le conversioni, la maggior parte proviene dal traffico organico, con un totale di <span style='color: green; font-weight: bold;'>3.720 conversioni</span>, sottolineando l'importanza di questo canale nel generare azioni concrete da parte degli utenti.</p>",
-        "posizionamento_organico": "<p>Su Google Search Console, abbiamo registrato un calo dei clic del <span style='color: red; font-weight: bold;'>-13,0%</span> e delle impression del <span style='color: red; font-weight: bold;'>-0,9%</span>. Queste flessioni negative sono dovute agli aggiornamenti di marzo rilasciati da Google. Stiamo monitorando attentamente la situazione per adattare le nostre strategie di conseguenza. È importante notare che la posizione media è migliorata, scendendo del <span style='color: green; font-weight: bold;'>-13,6%</span>. Questo è un aspetto positivo, in quanto indica una maggiore presenza nelle pagine superiori dei risultati di ricerca.</p>"
+        "acquisizione": {
+            "users": "12345",  # Questo è un esempio, sostituisci con il valore reale
+            "sessions": "67890",
+            "top_countries": "Italia, USA, UK"
+        },
+        "engagement_e_conversioni": {
+            "engagement_rate": "67.46",
+            "avg_engagement_duration": "2 min 55 sec",
+            "engaged_sessions": "35,682",
+            "conversions": "3,720",
+            "top_channel": "Ricerca organica"
+        },
+        "posizionamento_organico": {
+            "clicks": "-13.0%",
+            "impressions": "-0.9%",
+            "avg_position": "-13.6%"
+        }
     }
-    email_content = generate_email_content(client_name, contact_name, timeframe, report_type, key_info, your_name)
+    email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name)
 
     return email_content
 
 # UI di Streamlit
 st.title("Generatore di Mail da Report PDF")
+
+# Blocco di descrizione
+col1, col2 = st.columns([1, 7])
+with col1:
+    st.image("https://raw.githubusercontent.com/nurdigitalmarketing/previsione-del-traffico-futuro/9cdbf5d19d9132129474936c137bc8de1a67bd35/Nur-simbolo-1080x1080.png", width=80)
+with col2:
+    st.title('Generatore di Mail da Report PDF')
+    st.markdown('###### by [NUR® Digital Marketing](https://www.nur.it)')
+
+st.markdown("""
+## Introduzione
+Questo strumento è stato sviluppato per generare automaticamente email a partire da report PDF, con un focus particolare sui risultati del canale organico.
+## Funzionamento
+Per utilizzare questo strumento, carica un file PDF del report, inserisci le informazioni richieste e genera automaticamente l'email formattata.
+""")
 
 api_key = st.text_input("Inserisci la tua API key di OpenAI", type="password")
 if api_key:
@@ -96,7 +149,7 @@ if api_key:
         client_name = st.text_input("Nome del cliente")
         contact_name = st.text_input("Nome del referente")
         timeframe = st.text_input("Timeframe (es. 1 marzo 2024 - 31 maggio 2024)")
-        report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR", "year review"])
+        report_type = st.selectbox("Tipologia di report", ["trimestrale", "SAR"])
         your_name = st.text_input("Il tuo nome")
 
         if st.button("Genera Mail"):
@@ -105,9 +158,11 @@ if api_key:
             else:
                 with st.spinner("Generazione dell'email in corso..."):
                     report_text = extract_text_from_pdf(uploaded_file)
-                    email_content = generate_email(client, report_text, client_name, contact_name, timeframe, report_type, your_name)
+                    email_content = generate_email(client, report_text, client_name, contact_name, timeframe, your_name)
                     st.session_state['email_content'] = email_content
 
 if 'email_content' in st.session_state:
     quill_value = st_quill(value=st.session_state['email_content'], html=True)
-    st.download_button("Scarica la mail", quill_value, file_name='email.html')
+    if st.button("Copia email"):
+        pyperclip.copy(quill_value)
+        st.success("Email copiata negli appunti!")
