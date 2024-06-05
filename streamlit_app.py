@@ -5,6 +5,7 @@ import tiktoken
 from streamlit_quill import st_quill
 import pyperclip
 import json
+import re
 
 def extract_text_from_pdf(file):
     try:
@@ -26,6 +27,16 @@ def truncate_text(text, max_tokens):
 
 def format_number(number):
     return f"{number:,}".replace(",", ".")
+
+def clean_json_response(response_content):
+    # Rimuove i delimitatori di codice se presenti
+    response_content = response_content.strip()
+    if response_content.startswith("```json") and response_content.endswith("```"):
+        response_content = response_content[7:-3].strip()
+    # Rimuove eventuali caratteri non validi
+    response_content = re.sub(r'^[^\{]*', '', response_content)
+    response_content = re.sub(r'[^\}]*$', '', response_content)
+    return response_content
 
 def extract_key_info_from_report(client, report_text):
     messages = [
@@ -78,15 +89,17 @@ def extract_key_info_from_report(client, report_text):
 
     st.write(f"Response content: {response_content}")  # Debug: Verifica il contenuto della risposta
 
-    if not response_content.strip():
+    # Pulizia della risposta JSON
+    cleaned_response_content = clean_json_response(response_content)
+
+    if not cleaned_response_content.strip():
         st.error("Errore: la risposta dell'API è vuota.")
         return {}
 
     try:
-        # Attempt to load the JSON content, adding error handling
-        return json.loads(response_content)
+        return json.loads(cleaned_response_content)
     except json.JSONDecodeError as e:
-        st.error(f"Errore nella decodifica del JSON: {e}\nResponse content: {response_content}")
+        st.error(f"Errore nella decodifica del JSON: {e}")
         return {}
 
 def generate_email_content(client_name, contact_name, timeframe, key_info, your_name):
@@ -149,14 +162,15 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
 
     return email_content
 
-st.set_page_config(page_title="Mail Generator from SEO PDF Reports | NUR® Digital Marketing", layout="centered")
+# UI di Streamlit
+st.title("Generatore di Mail da Report PDF")
 
 # Blocco di descrizione
 col1, col2 = st.columns([1, 7])
 with col1:
     st.image("https://raw.githubusercontent.com/nurdigitalmarketing/previsione-del-traffico-futuro/9cdbf5d19d9132129474936c137bc8de1a67bd35/Nur-simbolo-1080x1080.png", width=80)
 with col2:
-    st.title('Mail Generator from SEO PDF Reports')
+    st.title('Generatore di Mail da Report PDF')
     st.markdown('###### by [NUR® Digital Marketing](https://www.nur.it)')
 
 st.markdown("""
@@ -166,7 +180,7 @@ Questo strumento è stato sviluppato per generare automaticamente email a partir
 Per utilizzare questo strumento, carica un file PDF del report, inserisci le informazioni richieste e genera automaticamente l'email formattata.
 """)
 
-api_key = st.text_input("Inserisci la tua API key di OpenAI. [Generala qui](https://platform.openai.com/api-keys).", type="password")
+api_key = st.text_input("Inserisci la tua API key di OpenAI", type="password")
 if api_key:
     client = OpenAI(api_key=api_key)
 
