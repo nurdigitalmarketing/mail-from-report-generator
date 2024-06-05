@@ -74,18 +74,19 @@ def extract_key_info_from_report(client, report_text):
         stop=None
     )
 
-    response_content = response.choices[0].message.content.strip()
+    response_content = response.choices[0].message.content
 
     st.write(f"Response content: {response_content}")  # Debug: Verifica il contenuto della risposta
 
-    if not response_content:
+    if not response_content.strip():
         st.error("Errore: la risposta dell'API è vuota.")
         return {}
 
     try:
+        # Attempt to load the JSON content, adding error handling
         return json.loads(response_content)
     except json.JSONDecodeError as e:
-        st.error(f"Errore nella decodifica del JSON: {e}")
+        st.error(f"Errore nella decodifica del JSON: {e}\nResponse content: {response_content}")
         return {}
 
 def generate_email_content(client_name, contact_name, timeframe, key_info, your_name):
