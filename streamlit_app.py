@@ -26,7 +26,11 @@ def truncate_text(text, max_tokens):
     return encoding.decode(tokens)
 
 def format_number(number):
-    return f"{number:,}".replace(",", ".")
+    try:
+        number = float(number.replace(",", ""))
+    except ValueError:
+        return number
+    return f"{number:,.2f}".replace(",", ".")
 
 def clean_json_response(response_content):
     # Rimuove i delimitatori di codice se presenti
