@@ -51,9 +51,9 @@ def extract_key_info_from_report(client, report_text):
                     "top_channel": "canale"
                 }},
                 "posizionamento_organico": {{
-                    "clicks": "percentuale",
+                    "clicks": "numero",
                     "clicks_change": "percentuale",
-                    "impressions": "percentuale",
+                    "impressions": "numero",
                     "impressions_change": "percentuale",
                     "avg_position": "numero",
                     "avg_position_change": "percentuale"
@@ -74,10 +74,11 @@ def extract_key_info_from_report(client, report_text):
         stop=None
     )
 
-    # Aggiungi debug della risposta
-    st.write(response.choices[0].message.content)
+    response_content = response.choices[0].message.content
 
-    return response.choices[0].message.content
+    st.write(response_content)  # Debug: Verifica il contenuto della risposta
+
+    return response_content
 
 def generate_email_content(client_name, contact_name, timeframe, key_info, your_name):
     email_template = f"""
@@ -98,23 +99,23 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
     <ul>
         <li>Utenti: {format_number(key_info['acquisizione']['users'])}</li>
         <li>Sessioni: {format_number(key_info['acquisizione']['sessions'])}</li>
-        <li>Paesi con maggiore acquisizione di utenti: {key_info['acquisizione']['top_countries']}</li>
+        <li>Paesi con maggiore acquisizione di utenti: {', '.join(key_info['acquisizione']['top_countries'])}</li>
     </ul>
 
     <p><strong>[Engagement e Conversioni]</strong></p>
     <ul>
-        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']}% con un {"incremento" if float(key_info['engagement_e_conversioni']['engagement_rate_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engagement_rate_change']}%</li>
-        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']} con un {"incremento" if float(key_info['engagement_e_conversioni']['avg_engagement_duration_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['avg_engagement_duration_change']}%</li>
-        <li>Sessioni con coinvolgimento: {format_number(key_info['engagement_e_conversioni']['engaged_sessions'])} con un {"incremento" if float(key_info['engagement_e_conversioni']['engaged_sessions_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['engaged_sessions_change']}%</li>
-        <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])} con un {"incremento" if float(key_info['engagement_e_conversioni']['conversions_change']) >= 0 else "decremento"} del {key_info['engagement_e_conversioni']['conversions_change']}%</li>
+        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['engagement_rate_change'] else "decremento"} del {key_info['engagement_e_conversioni']['engagement_rate_change']}</li>
+        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['avg_engagement_duration_change'] else "decremento"} del {key_info['engagement_e_conversioni']['avg_engagement_duration_change']}</li>
+        <li>Sessioni con coinvolgimento: {format_number(key_info['engagement_e_conversioni']['engaged_sessions'])} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['engaged_sessions_change'] else "decremento"} del {key_info['engagement_e_conversioni']['engaged_sessions_change']}</li>
+        <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['conversions_change'] else "decremento"} del {key_info['engagement_e_conversioni']['conversions_change']}</li>
         <li>Canale che porta maggiori conversioni: {key_info['engagement_e_conversioni']['top_channel']}</li>
     </ul>
 
     <p><strong>[Search Console]</strong></p>
     <ul>
-        <li>Clic: {key_info['posizionamento_organico']['clicks']} con un {"incremento" if float(key_info['posizionamento_organico']['clicks_change']) >= 0 else "decremento"} del {key_info['posizionamento_organico']['clicks_change']}%</li>
-        <li>Impression: {key_info['posizionamento_organico']['impressions']} con un {"incremento" if float(key_info['posizionamento_organico']['impressions_change']) >= 0 else "decremento"} del {key_info['posizionamento_organico']['impressions_change']}%</li>
-        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} con un {"incremento" if float(key_info['posizionamento_organico']['avg_position_change']) >= 0 else "decremento"} del {key_info['posizionamento_organico']['avg_position_change']}%</li>
+        <li>Clic: {format_number(key_info['posizionamento_organico']['clicks'])} con un {"incremento" if '-' not in key_info['posizionamento_organico']['clicks_change'] else "decremento"} del {key_info['posizionamento_organico']['clicks_change']}</li>
+        <li>Impression: {format_number(key_info['posizionamento_organico']['impressions'])} con un {"incremento" if '-' not in key_info['posizionamento_organico']['impressions_change'] else "decremento"} del {key_info['posizionamento_organico']['impressions_change']}</li>
+        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} con un {"incremento" if '-' not in key_info['posizionamento_organico']['avg_position_change'] else "decremento"} del {key_info['posizionamento_organico']['avg_position_change']}</li>
     </ul>
 
     <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
