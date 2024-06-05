@@ -74,11 +74,11 @@ def extract_key_info_from_report(client, report_text):
         stop=None
     )
 
-    response_content = response.choices[0].message.content
+    response_content = response.choices[0].message.content.strip()
 
     st.write(f"Response content: {response_content}")  # Debug: Verifica il contenuto della risposta
 
-    if not response_content.strip():
+    if not response_content:
         st.error("Errore: la risposta dell'API è vuota.")
         return {}
 
