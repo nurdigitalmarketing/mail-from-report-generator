@@ -148,7 +148,7 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
 
     return email_content
 
-st.set_page_config(page_title="Mail Generator from SEO PDF Reports | NUR® Digital Marketing", layout="wide")
+st.set_page_config(page_title="Mail Generator from SEO PDF Reports | NUR® Digital Marketing", layout="centered")
 
 # Blocco di descrizione
 col1, col2 = st.columns([1, 7])
