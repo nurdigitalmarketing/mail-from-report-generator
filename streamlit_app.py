@@ -167,14 +167,14 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
     return email_content
 
 # UI di Streamlit
-st.title("Generatore di Mail da Report PDF")
+st.set_page_config(page_title="Mail from SEO PDF report generator | NUR® Digital Marketing", layout="centered")
 
 # Blocco di descrizione
 col1, col2 = st.columns([1, 7])
 with col1:
     st.image("https://raw.githubusercontent.com/nurdigitalmarketing/previsione-del-traffico-futuro/9cdbf5d19d9132129474936c137bc8de1a67bd35/Nur-simbolo-1080x1080.png", width=80)
 with col2:
-    st.title('Generatore di Mail da Report PDF')
+    st.title('Mail from SEO PDF Report Generator')
     st.markdown('###### by [NUR® Digital Marketing](https://www.nur.it)')
 
 st.markdown("""
