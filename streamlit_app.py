@@ -95,13 +95,13 @@ def extract_key_info_from_report(client, report_text):
 
     if not cleaned_response_content.strip():
         st.error("Errore: la risposta dell'API è vuota.")
-        return {}
+        return None
 
     try:
         return json.loads(cleaned_response_content)
     except json.JSONDecodeError as e:
         st.error(f"Errore nella decodifica del JSON: {e}")
-        return {}
+        return None
 
 def generate_summary(client, key_info):
     summary_prompt = f"""
@@ -175,6 +175,7 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
     key_info = extract_key_info_from_report(client, truncated_report_text)
     
     if not key_info:
+        st.error("Errore nell'estrazione delle informazioni chiave dal report.")
         return ""
 
     summary = generate_summary(client, key_info)
@@ -226,5 +227,8 @@ if api_key:
 if 'email_content' in st.session_state:
     quill_value = st_quill(value=st.session_state['email_content'], html=True)
     if st.button("Copia email"):
-        pyperclip.copy(quill_value)
-        st.success("Email copiata negli appunti!")
+        try:
+            pyperclip.copy(quill_value)
+            st.success("Email copiata negli appunti!")
+        except pyperclip.PyperclipException as e:
+            st.error(f"Errore nella copia del testo: {e}")
