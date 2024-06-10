@@ -3,7 +3,6 @@ from PyPDF2 import PdfReader
 from openai import OpenAI
 import tiktoken
 from streamlit_quill import st_quill
-import pyperclip
 import json
 import re
 
@@ -183,7 +182,7 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
     <p><strong>{your_name}</strong></p>
     """
     return email_template
-
+    
 def generate_email(client, report_text, client_name, contact_name, timeframe, your_name):
     max_input_tokens = 126000  # Set according to the context window of the model
     truncated_report_text = truncate_text(report_text, max_input_tokens)
@@ -211,9 +210,9 @@ with col2:
     st.markdown('###### by [NUR® Digital Marketing](https://www.nur.it)')
 
 st.markdown("""
-## Introduzione
+### Introduzione
 Questo strumento è stato sviluppato per generare automaticamente email a partire da report PDF, con un focus particolare sui risultati del canale organico.
-## Funzionamento
+### Funzionamento
 Per utilizzare questo strumento, carica un file PDF del report, inserisci le informazioni richieste e genera automaticamente l'email formattata.
 """)
 
@@ -242,11 +241,4 @@ if api_key:
 
 if 'email_content' in st.session_state:
     quill_value = st_quill(value=st.session_state['email_content'], html=True)
-    if st.button("Copia email"):
-        try:
-            pyperclip.copy(quill_value)
-            st.success("Email copiata negli appunti!")
-        except pyperclip.PyperclipException as e:
-            st.error(f"Errore nella copia del testo: {e}")
-        except Exception as e:
-            st.error(f"Errore inaspettato nella copia del testo: {e}")
+
