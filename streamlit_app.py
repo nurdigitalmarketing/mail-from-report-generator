@@ -125,25 +125,34 @@ def generate_summary(client, key_info):
 
     return response.choices[0].message.content.strip()
 
-def generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary):
+def generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary, additional_considerations):
     email_template = f"""
     <p>Ciao {contact_name},</p>
     <p>Ti invio il report relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
     <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
     <p>Di seguito troverai i dettagli dei risultati raggiunti:</p>
-
+    <p>&nbsp;</p>
     <p><strong>Riassunto:</strong></p>
     <p>{summary}</p>
-
+    <p>&nbsp;</p>
+    <p><strong>Considerazioni:</strong></p>
+    <p>- Il traffico organico è una fonte chiave di acquisizione, con un buon numero di utenti e sessioni provenienti dalla ricerca organica.</p>
+    <p>- Il tasso di engagement è relativamente alto, ma la durata media dell'engagement è piuttosto breve.</p>
+    <p>- Nonostante un buon numero di impression, i clic sono diminuiti significativamente (-21,8%), suggerendo una possibile diminuzione del CTR.</p>
+    <p>- La posizione media è peggiorata (-20,1%), indicando che le pagine stanno posizionandosi peggio nei risultati di ricerca.</p>
+    <p>- Il canale organico continua a essere il principale motore di conversioni, dimostrando l'efficacia delle nostre strategie SEO.</p>
+    <p>- Abbiamo visto un aumento delle impression (+0,9%), il che indica una maggiore visibilità nei risultati di ricerca.</p>
+    <p>- Anche se la posizione media è peggiorata, il volume complessivo di clic e sessioni mostra che gli utenti trovano ancora valore nei nostri contenuti.</p>
+    <p>&nbsp;</p>
     <p><strong>Risultati raggiunti:</strong></p>
-    <p><strong>[Acquisizione]</strong></p>
+    <p><strong>Acquisizione:</strong></p>
     <ul>
-        <li>Utenti: {format_number(key_info['acquisizione']['users'])}</li>
-        <li>Sessioni: {format_number(key_info['acquisizione']['sessions'])}</li>
+        <li>Numero di utenti: {format_number(key_info['acquisizione']['users'])}</li>
+        <li>Numero di sessioni: {format_number(key_info['acquisizione']['sessions'])}</li>
         <li>Paesi con maggiore acquisizione di utenti: {', '.join(key_info['acquisizione']['top_countries'])}</li>
     </ul>
-
-    <p><strong>[Engagement e Conversioni]</strong></p>
+    <p>&nbsp;</p>
+    <p><strong>Engagement e Conversioni:</strong></p>
     <ul>
         <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['engagement_rate_change'] else "decremento"} del {key_info['engagement_e_conversioni']['engagement_rate_change']}</li>
         <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['avg_engagement_duration_change'] else "decremento"} del {key_info['engagement_e_conversioni']['avg_engagement_duration_change']}</li>
@@ -151,18 +160,18 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
         <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['conversions_change'] else "decremento"} del {key_info['engagement_e_conversioni']['conversions_change']}</li>
         <li>Canale che porta maggiori conversioni: {key_info['engagement_e_conversioni']['top_channel']}</li>
     </ul>
-
-    <p><strong>[Search Console]</strong></p>
+    <p>&nbsp;</p>
+    <p><strong>Posizionamento Organico:</strong></p>
     <ul>
         <li>Clic: {format_number(key_info['posizionamento_organico']['clicks'])} con un {"incremento" if '-' not in key_info['posizionamento_organico']['clicks_change'] else "decremento"} del {key_info['posizionamento_organico']['clicks_change']}</li>
         <li>Impression: {format_number(key_info['posizionamento_organico']['impressions'])} con un {"incremento" if '-' not in key_info['posizionamento_organico']['impressions_change'] else "decremento"} del {key_info['posizionamento_organico']['impressions_change']}</li>
         <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} con un {"incremento" if '-' not in key_info['posizionamento_organico']['avg_position_change'] else "decremento"} del {key_info['posizionamento_organico']['avg_position_change']}</li>
     </ul>
-
+    <p>&nbsp;</p>
     <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
-
+    <p>&nbsp;</p>
     <p>Fammi sapere se ti servisse altro.</p>
-
+    <p>&nbsp;</p>
     <p>A presto,</p>
     <p><strong>{your_name}</strong></p>
     """
@@ -179,7 +188,12 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
         return ""
 
     summary = generate_summary(client, key_info)
-    email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary)
+    additional_considerations = """
+    - Il canale organico continua a essere il principale motore di conversioni, dimostrando l'efficacia delle nostre strategie SEO.
+    - Abbiamo visto un aumento delle impression (+0,9%), il che indica una maggiore visibilità nei risultati di ricerca.
+    - Anche se la posizione media è peggiorata, il volume complessivo di clic e sessioni mostra che gli utenti trovano ancora valore nei nostri contenuti.
+    """
+    email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary, additional_considerations)
 
     return email_content
 
@@ -232,3 +246,4 @@ if 'email_content' in st.session_state:
             st.success("Email copiata negli appunti!")
         except pyperclip.PyperclipException as e:
             st.error(f"Errore nella copia del testo: {e}")
+
