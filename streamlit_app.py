@@ -125,53 +125,68 @@ def generate_summary(client, key_info):
 
     return response.choices[0].message.content.strip()
 
-def generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary, additional_considerations):
+def generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary):
     email_template = f"""
     <p>Ciao {contact_name},</p>
-    <p>Ti invio il report relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
+
+    <p>Ti invio il report relativo al progetto SEO di {client_name}, focalizzato sui risultati del canale organico.</p>
+
     <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
+
     <p>Di seguito troverai i dettagli dei risultati raggiunti:</p>
-    <p>&nbsp;</p>
-    <p><strong>Riassunto:</strong></p>
-    <p>{summary}</p>
-    <p>&nbsp;</p>
-    <p><strong>Considerazioni:</strong></p>
-    <p>- Il traffico organico è una fonte chiave di acquisizione, con un buon numero di utenti e sessioni provenienti dalla ricerca organica.</p>
-    <p>- Il tasso di engagement è relativamente alto, ma la durata media dell'engagement è piuttosto breve.</p>
-    <p>- Nonostante un buon numero di impression, i clic sono diminuiti significativamente (-21,8%), suggerendo una possibile diminuzione del CTR.</p>
-    <p>- La posizione media è peggiorata (-20,1%), indicando che le pagine stanno posizionandosi peggio nei risultati di ricerca.</p>
-    <p>- Il canale organico continua a essere il principale motore di conversioni, dimostrando l'efficacia delle nostre strategie SEO.</p>
-    <p>- Abbiamo visto un aumento delle impression (+0,9%), il che indica una maggiore visibilità nei risultati di ricerca.</p>
-    <p>- Anche se la posizione media è peggiorata, il volume complessivo di clic e sessioni mostra che gli utenti trovano ancora valore nei nostri contenuti.</p>
-    <p>&nbsp;</p>
-    <p><strong>Risultati raggiunti:</strong></p>
-    <p><strong>Acquisizione:</strong></p>
+
+    <h3>Riassunto</h3>
     <ul>
-        <li>Numero di utenti: {format_number(key_info['acquisizione']['users'])}</li>
-        <li>Numero di sessioni: {format_number(key_info['acquisizione']['sessions'])}</li>
-        <li>Paesi con maggiore acquisizione di utenti: {', '.join(key_info['acquisizione']['top_countries'])}</li>
+      <li>Il traffico organico è una fonte chiave di acquisizione, con un buon numero di utenti e sessioni provenienti dalla ricerca organica.</li>
+      <li>Il tasso di engagement è relativamente alto, ma la durata media dell'engagement è piuttosto breve.</li>
+      <li>Nonostante un buon numero di impression, i clic sono diminuiti significativamente (-21,8%), suggerendo una possibile diminuzione del CTR.</li>
+      <li>La posizione media è peggiorata (-20,1%), indicando che le pagine stanno posizionandosi peggio nei risultati di ricerca.</li>
+      <li>Il canale organico continua a essere il principale motore di conversioni, dimostrando l'efficacia delle nostre strategie SEO.</li>
+      <li>Abbiamo visto un aumento delle impression (+0,9%), il che indica una maggiore visibilità nei risultati di ricerca.</li>
+      <li>Anche se la posizione media è peggiorata, il volume complessivo di clic e sessioni mostra che gli utenti trovano ancora valore nei nostri contenuti.</li>
     </ul>
-    <p>&nbsp;</p>
-    <p><strong>Engagement e Conversioni:</strong></p>
+
+    <h3>Dati</h3>
+    <p>I dati forniti offrono una panoramica delle performance SEO del sito web. Ecco un breve riassunto:</p>
+
+    <h4>Acquisizione</h4>
     <ul>
-        <li>Tasso di coinvolgimento: {key_info['engagement_e_conversioni']['engagement_rate']} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['engagement_rate_change'] else "decremento"} del {key_info['engagement_e_conversioni']['engagement_rate_change']}</li>
-        <li>Durata media del coinvolgimento: {key_info['engagement_e_conversioni']['avg_engagement_duration']} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['avg_engagement_duration_change'] else "decremento"} del {key_info['engagement_e_conversioni']['avg_engagement_duration_change']}</li>
-        <li>Sessioni con coinvolgimento: {format_number(key_info['engagement_e_conversioni']['engaged_sessions'])} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['engaged_sessions_change'] else "decremento"} del {key_info['engagement_e_conversioni']['engaged_sessions_change']}</li>
-        <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])} con un {"incremento" if '-' not in key_info['engagement_e_conversioni']['conversions_change'] else "decremento"} del {key_info['engagement_e_conversioni']['conversions_change']}</li>
-        <li>Canale che porta maggiori conversioni: {key_info['engagement_e_conversioni']['top_channel']}</li>
+      <li>Utenti: {format_number(key_info['acquisizione']['users'])}</li>
+      <li>Sessioni: {format_number(key_info['acquisizione']['sessions'])}</li>
+      <li>Paese principale: {', '.join(key_info['acquisizione']['top_countries'])}</li>
     </ul>
-    <p>&nbsp;</p>
-    <p><strong>Posizionamento Organico:</strong></p>
+
+    <h4>Engagement e Conversioni</h4>
     <ul>
-        <li>Clic: {format_number(key_info['posizionamento_organico']['clicks'])} con un {"incremento" if '-' not in key_info['posizionamento_organico']['clicks_change'] else "decremento"} del {key_info['posizionamento_organico']['clicks_change']}</li>
-        <li>Impression: {format_number(key_info['posizionamento_organico']['impressions'])} con un {"incremento" if '-' not in key_info['posizionamento_organico']['impressions_change'] else "decremento"} del {key_info['posizionamento_organico']['impressions_change']}</li>
-        <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} con un {"incremento" if '-' not in key_info['posizionamento_organico']['avg_position_change'] else "decremento"} del {key_info['posizionamento_organico']['avg_position_change']}</li>
+      <li>Tasso di engagement: {key_info['engagement_e_conversioni']['engagement_rate']}</li>
+      <li>Durata media dell'engagement: {key_info['engagement_e_conversioni']['avg_engagement_duration']}</li>
+      <li>Sessioni impegnate: {format_number(key_info['engagement_e_conversioni']['engaged_sessions'])}</li>
+      <li>Conversioni: {format_number(key_info['engagement_e_conversioni']['conversions'])}</li>
+      <li>Canale principale: {key_info['engagement_e_conversioni']['top_channel']}</li>
     </ul>
-    <p>&nbsp;</p>
+
+    <h4>Posizionamento Organico</h4>
+    <ul>
+      <li>Click: {format_number(key_info['posizionamento_organico']['clicks'])} (in calo del {key_info['posizionamento_organico']['clicks_change']})</li>
+      <li>Impressioni: {format_number(key_info['posizionamento_organico']['impressions'])} (in aumento dello {key_info['posizionamento_organico']['impressions_change']})</li>
+      <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} (in calo del {key_info['posizionamento_organico']['avg_position_change']})</li>
+    </ul>
+
+    <h3>Osservazioni</h3>
+    <ul>
+      <li>Il tasso di engagement è solido al {key_info['engagement_e_conversioni']['engagement_rate']}, con una buona durata media delle sessioni.</li>
+      <li>Le conversioni sono {format_number(key_info['engagement_e_conversioni']['conversions'])}, indicando una certa efficacia nella trasformazione degli utenti.</li>
+      <li>Tuttavia, c'è una significativa diminuzione dei clic ({key_info['posizionamento_organico']['clicks_change']}), suggerendo che meno utenti stanno cliccando sui risultati di ricerca organici.</li>
+      <li>La posizione media nelle SERP è peggiorata ({key_info['posizionamento_organico']['avg_position_change']}), il che potrebbe spiegare il calo nei clic, nonostante un leggero aumento nelle impressioni ({key_info['posizionamento_organico']['impressions_change']}).</li>
+    </ul>
+
+    <h3>Conclusione</h3>
+    <p>Mentre la performance di engagement e conversioni è positiva, c'è una preoccupazione per il calo nei clic e il peggioramento della posizione media. È consigliabile analizzare ulteriormente le cause di questi cali per adottare misure correttive.</p>
+
     <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
-    <p>&nbsp;</p>
+
     <p>Fammi sapere se ti servisse altro.</p>
-    <p>&nbsp;</p>
+
     <p>A presto,</p>
     <p><strong>{your_name}</strong></p>
     """
@@ -188,12 +203,7 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
         return ""
 
     summary = generate_summary(client, key_info)
-    additional_considerations = """
-    - Il canale organico continua a essere il principale motore di conversioni, dimostrando l'efficacia delle nostre strategie SEO.
-    - Abbiamo visto un aumento delle impression (+0,9%), il che indica una maggiore visibilità nei risultati di ricerca.
-    - Anche se la posizione media è peggiorata, il volume complessivo di clic e sessioni mostra che gli utenti trovano ancora valore nei nostri contenuti.
-    """
-    email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary, additional_considerations)
+    email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary)
 
     return email_content
 
@@ -246,4 +256,3 @@ if 'email_content' in st.session_state:
             st.success("Email copiata negli appunti!")
         except pyperclip.PyperclipException as e:
             st.error(f"Errore nella copia del testo: {e}")
-
