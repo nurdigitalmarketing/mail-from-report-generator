@@ -175,7 +175,7 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
     <p><b>CONCLUSIONI</b></p>
     <p>Mentre la performance di engagement e conversioni è positiva, c'è una preoccupazione per il calo nei clic e il peggioramento della posizione media. È consigliabile analizzare ulteriormente le cause di questi cali per adottare misure correttive.</p>
 
-    <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
+    <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al <a href="https://www.report.nur.it/" target="_blank" rel="external">report online</a> in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
 
     <p>Fammi sapere se ti servisse altro.</p>
 
