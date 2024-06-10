@@ -172,14 +172,6 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
       <li>Posizione media: {key_info['posizionamento_organico']['avg_position']} (in calo del {key_info['posizionamento_organico']['avg_position_change']})</li>
     </ul>
 
-    <h3>Osservazioni</h3>
-    <ul>
-      <li>Il tasso di engagement è solido al {key_info['engagement_e_conversioni']['engagement_rate']}, con una buona durata media delle sessioni.</li>
-      <li>Le conversioni sono {format_number(key_info['engagement_e_conversioni']['conversions'])}, indicando una certa efficacia nella trasformazione degli utenti.</li>
-      <li>Tuttavia, c'è una significativa diminuzione dei clic ({key_info['posizionamento_organico']['clicks_change']}), suggerendo che meno utenti stanno cliccando sui risultati di ricerca organici.</li>
-      <li>La posizione media nelle SERP è peggiorata ({key_info['posizionamento_organico']['avg_position_change']}), il che potrebbe spiegare il calo nei clic, nonostante un leggero aumento nelle impressioni ({key_info['posizionamento_organico']['impressions_change']}).</li>
-    </ul>
-
     <p><b>CONCLUSIONI</b></p>
     <p>Mentre la performance di engagement e conversioni è positiva, c'è una preoccupazione per il calo nei clic e il peggioramento della posizione media. È consigliabile analizzare ulteriormente le cause di questi cali per adottare misure correttive.</p>
 
