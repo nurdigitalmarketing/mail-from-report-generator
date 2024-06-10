@@ -3,7 +3,7 @@ from PyPDF2 import PdfReader
 from openai import OpenAI
 import tiktoken
 from streamlit_quill import st_quill
-import pyperclip3 as pyperclip
+import pyperclip
 import json
 import re
 
@@ -256,3 +256,6 @@ if 'email_content' in st.session_state:
             st.success("Email copiata negli appunti!")
         except pyperclip.PyperclipException as e:
             st.error(f"Errore nella copia del testo: {e}")
+        except Exception as e:
+            st.error(f"Errore inaspettato nella copia del testo: {e}")
+
