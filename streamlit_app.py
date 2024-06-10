@@ -135,7 +135,7 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
 
     <p>Di seguito troverai i dettagli dei risultati raggiunti:</p>
 
-    <h3>Riassunto</h3>
+    <p><b>RIASSUNTO</b></p>
     <ul>
       <li>Il traffico organico è una fonte chiave di acquisizione, con un buon numero di utenti e sessioni provenienti dalla ricerca organica.</li>
       <li>Il tasso di engagement è relativamente alto, ma la durata media dell'engagement è piuttosto breve.</li>
@@ -146,17 +146,17 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
       <li>Anche se la posizione media è peggiorata, il volume complessivo di clic e sessioni mostra che gli utenti trovano ancora valore nei nostri contenuti.</li>
     </ul>
 
-    <h3>Dati</h3>
+    <p><b>DATI</b></p>
     <p>I dati forniti offrono una panoramica delle performance SEO del sito web. Ecco un breve riassunto:</p>
 
-    <h4>Acquisizione</h4>
+    <p>Acquisizione</p>
     <ul>
       <li>Utenti: {format_number(key_info['acquisizione']['users'])}</li>
       <li>Sessioni: {format_number(key_info['acquisizione']['sessions'])}</li>
       <li>Paese principale: {', '.join(key_info['acquisizione']['top_countries'])}</li>
     </ul>
 
-    <h4>Engagement e Conversioni</h4>
+    <p>Engagement e Conversioni</p>
     <ul>
       <li>Tasso di engagement: {key_info['engagement_e_conversioni']['engagement_rate']}</li>
       <li>Durata media dell'engagement: {key_info['engagement_e_conversioni']['avg_engagement_duration']}</li>
@@ -165,7 +165,7 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
       <li>Canale principale: {key_info['engagement_e_conversioni']['top_channel']}</li>
     </ul>
 
-    <h4>Posizionamento Organico</h4>
+    <p>Posizionamento Organico</p>
     <ul>
       <li>Click: {format_number(key_info['posizionamento_organico']['clicks'])} (in calo del {key_info['posizionamento_organico']['clicks_change']})</li>
       <li>Impressioni: {format_number(key_info['posizionamento_organico']['impressions'])} (in aumento dello {key_info['posizionamento_organico']['impressions_change']})</li>
@@ -180,7 +180,7 @@ def generate_email_content(client_name, contact_name, timeframe, key_info, your_
       <li>La posizione media nelle SERP è peggiorata ({key_info['posizionamento_organico']['avg_position_change']}), il che potrebbe spiegare il calo nei clic, nonostante un leggero aumento nelle impressioni ({key_info['posizionamento_organico']['impressions_change']}).</li>
     </ul>
 
-    <h3>Conclusione</h3>
+    <p><b>CONCLUSIONI</b></p>
     <p>Mentre la performance di engagement e conversioni è positiva, c'è una preoccupazione per il calo nei clic e il peggioramento della posizione media. È consigliabile analizzare ulteriormente le cause di questi cali per adottare misure correttive.</p>
 
     <p>Troverai maggiori dettagli nel report allegato in formato PDF. Ricordo anche che è possibile accedere al report online in qualsiasi momento, utilizzando le credenziali fornite in allegato a questa mail.</p>
