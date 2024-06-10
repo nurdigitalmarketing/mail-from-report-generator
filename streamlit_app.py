@@ -3,7 +3,7 @@ from PyPDF2 import PdfReader
 from openai import OpenAI
 import tiktoken
 from streamlit_quill import st_quill
-import pyperclip
+import pyperclip3 as pyperclip
 import json
 import re
 
