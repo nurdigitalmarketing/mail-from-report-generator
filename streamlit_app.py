@@ -30,14 +30,12 @@ def format_number(number):
         number = float(number.replace(",", ""))
     except ValueError:
         return number
-    return f"{number:,.2f}".replace(",", ".")
+    return f"{number:,.3f}".replace(",", ".")
 
 def clean_json_response(response_content):
-    # Rimuove i delimitatori di codice se presenti
     response_content = response_content.strip()
     if response_content.startswith("```json") and response_content.endswith("```"):
         response_content = response_content[7:-3].strip()
-    # Rimuove eventuali caratteri non validi
     response_content = re.sub(r'^[^\{]*', '', response_content)
     response_content = re.sub(r'[^\}]*$', '', response_content)
     return response_content
@@ -93,7 +91,6 @@ def extract_key_info_from_report(client, report_text):
 
     st.write(f"Response content: {response_content}")  # Debug: Verifica il contenuto della risposta
 
-    # Pulizia della risposta JSON
     cleaned_response_content = clean_json_response(response_content)
 
     if not cleaned_response_content.strip():
@@ -106,19 +103,37 @@ def extract_key_info_from_report(client, report_text):
         st.error(f"Errore nella decodifica del JSON: {e}")
         return {}
 
-def generate_email_content(client_name, contact_name, timeframe, key_info, your_name):
+def generate_summary(client, key_info):
+    summary_prompt = f"""
+    Analizza i seguenti dati e genera un breve riassunto delle performance SEO:
+    {json.dumps(key_info, indent=4)}
+    """
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": summary_prompt}
+    ]
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        max_tokens=500,
+        temperature=0.7,
+        top_p=1.0,
+        n=1,
+        stop=None
+    )
+
+    return response.choices[0].message.content.strip()
+
+def generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary):
     email_template = f"""
     <p>Ciao {contact_name},</p>
     <p>Ti invio il report relativo al progetto SEO di {client_name}, focalizzandosi sui risultati del canale organico.</p>
     <p>Il periodo analizzato va dall'{timeframe}, con un confronto rispetto allo stesso periodo dell'anno precedente.</p>
     <p>Di seguito troverai i dettagli dei risultati raggiunti:</p>
 
-    <p><strong>Attività svolte in questo periodo:</strong></p>
-    <ul>
-        <li>Miglioramento dei contenuti su diverse pagine chiave</li>
-        <li>Aggiunta di link interni a pagine chiave</li>
-        <li>Costruzione di nuovi backlink (vedi report sui link)</li>
-    </ul>
+    <p><strong>Riassunto:</strong></p>
+    <p>{summary}</p>
 
     <p><strong>Risultati raggiunti:</strong></p>
     <p><strong>[Acquisizione]</strong></p>
@@ -162,7 +177,8 @@ def generate_email(client, report_text, client_name, contact_name, timeframe, yo
     if not key_info:
         return ""
 
-    email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name)
+    summary = generate_summary(client, key_info)
+    email_content = generate_email_content(client_name, contact_name, timeframe, key_info, your_name, summary)
 
     return email_content
 
