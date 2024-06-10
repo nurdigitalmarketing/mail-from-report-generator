@@ -3,4 +3,4 @@ PyPDF2
 openai
 tiktoken
 streamlit_quill
-pyperclip
+pyperclip3
