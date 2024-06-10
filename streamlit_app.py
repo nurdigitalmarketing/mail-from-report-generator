@@ -184,7 +184,7 @@ Questo strumento è stato sviluppato per generare automaticamente email a partir
 Per utilizzare questo strumento, carica un file PDF del report, inserisci le informazioni richieste e genera automaticamente l'email formattata.
 """)
 
-api_key = st.text_input("Inserisci la tua API key di OpenAI, [generala qui ➚](https://platform.openai.com/api-keys)", type="password")
+api_key = st.text_input("Inserisci la tua API key di OpenAI, [generala qui](https://platform.openai.com/api-keys).", type="password")
 if api_key:
     client = OpenAI(api_key=api_key)
 
