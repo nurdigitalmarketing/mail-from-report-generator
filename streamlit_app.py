@@ -240,3 +240,13 @@ if api_key:
                     if email_content:
                         st.session_state['email_content'] = email_content
 
+if 'email_content' in st.session_state:
+    quill_value = st_quill(value=st.session_state['email_content'], html=True)
+    if st.button("Copia email"):
+        try:
+            pyperclip.copy(quill_value)
+            st.success("Email copiata negli appunti!")
+        except pyperclip.PyperclipException as e:
+            st.error(f"Errore nella copia del testo: {e}")
+        except Exception as e:
+            st.error(f"Errore inaspettato nella copia del testo: {e}")
